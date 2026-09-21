@@ -111,6 +111,12 @@ DuckDB(`INSTALL spatial; INSTALL httpfs;` の上で `LOAD` するだけ)から�
 
 ### 段階1の暫定評価
 
+> 以下は「OSMというデータそのもの」に対する評価であり、
+> 「Layercakeという配布技術」への評価とは別軸で読む必要がある。
+> 両者の分離については
+> [`docs/decisions/0002-stage3-judgment-materials.md`](../docs/decisions/0002-stage3-judgment-materials.md)
+> を参照。
+
 * **精度・充実度は地域のOSMマッピング密度にそのまま比例する**。
   日本(北海道)のようにマッピングが成熟した地域では、市町村単位
   までは高精度・高属性(人口あり)。ラオスのような中間的な地域では、
@@ -224,6 +230,12 @@ ISOコードなし)、`admin_level=6`(chiefdom、Koya Chiefdom等)という
 クエリ: [`queries/boundaries-freetown.sql`](../queries/boundaries-freetown.sql)
 
 ### 段階2の暫定評価
+
+> 段階1同様、以下は軸A(OSMデータそのもの)への評価。Layercakeと
+> いう技術自体(軸B)は、4レイヤーを通じて一貫して問題なく機能
+> しており、地域差は出ていない。詳細は
+> [`docs/decisions/0002-stage3-judgment-materials.md`](../docs/decisions/0002-stage3-judgment-materials.md)
+> の軸A/軸B整理を参照。
 
 * POIs・Highways・Boundariesいずれも、**Settlementsと同じ傾向
   ——地域のOSMマッピング密度・関心の偏りがそのまま属性充実度に
