@@ -106,6 +106,78 @@ DuckDB(`INSTALL spatial; INSTALL httpfs;` の上で `LOAD` するだけ)から�
   等、まさにHOT文書が課題視していた地域)では期待するほどの改善は
   得られない**可能性が高い。これは段階3の判断材料として重要。
 
-## POIs / Highways / Boundaries(段階2)
+## POIs / Highways / Boundaries(段階2、検証日: 2026-09-22)
 
-未着手。
+### POIs — ネパールの保健施設(rpi-geoserver0との比較を意識)
+
+* スキーマ: `amenity`/`healthcare`/`shop`/`tourism`等、OSMのメインタグが
+  そのまま列になっている(65列)。`name`/`names`等はvarchar配列
+  ([]) になっており、Settlementsの単一varcharとは型が異なる点に注意。
+* ネパール全域(bbox: 80.0–88.3E, 26.3–30.5N)で、hospital/clinic/
+  doctors/pharmacy/health_post/`healthcare=*`のいずれかに該当する
+  POIが**11,057件**ヒット。内訳はclinic(2,658)、healthcare=centre
+  (2,129)、hospital(2,086)、pharmacy(1,453)等、amenity/healthcareの
+  組み合わせが多岐にわたる(要: どちらかだけを見るとデータが漏れる)。
+* 属性充実度: `name`あり 91.1%(10,075/11,057)。一方、`phone`
+  10.0%、`opening_hours`5.6%、`website`1.4%、`healthcare:speciality`
+  2.1%と、連絡先・診療時間などの実務的属性は乏しい。
+* → rpi-geoserver0のNepal Health Facilitiesベンチマークと比べると、
+  **件数・地理的網羅性では大きく上回る可能性が高い**(全国のOSM
+  マッピング成果をそのまま拾える)。ただし電話番号・診療時間などの
+  実務属性はOSM側でそもそもほとんど入力されておらず、rpi-geoserver0
+  が持つ公式データセット固有の属性を代替できるわけではない。
+  **「位置と名称の広域カバレッジ」を補完する用途に向く**。
+* クエリ: [`queries/pois-nepal-healthcare.sql`](../queries/pois-nepal-healthcare.sql)
+
+### Highways — 道路の通行可能性属性(zukaku/HOT文書の課題を意識)
+
+地域ごとに`surface`/`tracktype`/`access`/`bridge`/`smoothness`の
+被覆率を比較(件数/全体道路数):
+
+| 地域 | 総道路数 | surface | tracktype | access | bridge | smoothness |
+|---|---|---|---|---|---|---|
+| 北海道 | 665,306 | 9.1% | 1.0% | 1.0% | 4.9% | 0.8% |
+| ビエンチャン周辺 | 61,058 | 26.5% | 0.8% | 1.0% | 1.5% | 2.8% |
+| ジュバ周辺 | 18,306 | **84.7%** | 3.0% | 0.3% | 0.5% | 0.03% |
+
+* 意外な結果: **ジュバ周辺の`surface`タグ被覆率が突出して高い
+  (84.7%)**。北海道(9.1%)やビエンチャン(26.5%)よりずっと高い。
+  これは南スーダンが人道支援マッピング(HOTのタスク等)の対象地域
+  として重点的に道路の舗装状況がタグ付けされてきたためと推測される
+  (未舗装路や増水期に通行不能になる道の把握が、人道支援上重要な
+  ため)。一方`tracktype`/`access`/`bridge`等の細かい属性は
+  いずれの地域でも1桁%と乏しい。
+* → HOT文書が課題視する「道路の通行可能性」情報は、**まさにその
+  課題意識でマッピングされてきた地域(南スーダン等)では、すでに
+  相応の蓄積がある**ことを確認。zukakuの背景データとしては、
+  少なくとも`surface`タグの活用は有望。ただし`tracktype`・`access`
+  等のより詳細な通行可否判断に使える属性は、どの地域でもまだ薄い。
+* クエリ: [`queries/highways-passability.sql`](../queries/highways-passability.sql)
+
+### Boundaries — ラオス周辺の行政境界
+
+* ラオス・タイ・ベトナム国境付近(bbox: 100.0–104.0E, 17.0–19.5N)で
+  `boundary=administrative`を抽出すると、`admin_level=4`(県・
+  จังหวัด・tỉnh相当)には`ISO3166-2`コードが付与されている
+  (例: `LA-VI`=ビエンチャン県、`LA-VT`=ビエンチャン都、
+  `TH-43`=ノーンカーイ県)。`admin_level=6`(郡・อำเภอ・ເມືອງ相当)
+  にはISOコードがなく、名称のみ。`admin_level=10`(集落・村落境界)
+  も一部存在する。
+* → **国をまたいだ行政階層が同じ`admin_level`スキームで統一的に
+  扱えており、ISO3166-2コードが県レベルで機械可読に取得できる**点は
+  有用。国家測量研修やラオス案件のような、行政区分をまたぐ文脈での
+  基礎データとして活用しやすい構造。ただし郡・村落レベルでは
+  ISOコードがなく、名称の表記ゆれ(タイ語/ラオス語混在)への
+  対応は別途必要。
+* クエリ: [`queries/boundaries-laos.sql`](../queries/boundaries-laos.sql)
+
+### 段階2の暫定評価
+
+* POIs・Highways・Boundariesいずれも、**Settlementsと同じ傾向
+  ——地域のOSMマッピング密度・関心の偏りがそのまま属性充実度に
+  反映される——が確認できた**。特にHighwaysでは、人道支援上の
+  関心が高い地域(南スーダン)ほど通行可能性に関わるタグが充実して
+  いるという、直感に反するが理にかなった結果が得られた。
+* 3レイヤーとも、既存プロジェクトへの「即座の代替」ではなく
+  「広域カバレッジを補完する追加ソース」として位置づけるのが
+  妥当と考えられる。最終的な統合可否の判断は段階3で人が行う。

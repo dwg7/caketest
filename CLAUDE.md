@@ -108,7 +108,9 @@ dwg7/caketest/
 * [x] `dwg7/caketest` リポジトリ作成
 * [x] Settlementsレイヤーの検証(段階1) — 北海道/ビエンチャン/ジュバの
       3地域で検証済み、詳細は[`notes/findings.md`](notes/findings.md)
-* [ ] POIs/Highways/Boundariesの簡易評価(段階2)
+* [x] POIs/Highways/Boundariesの簡易評価(段階2) — ネパール保健施設
+      /道路通行可能性/ラオス行政境界で検証済み、詳細は
+      [`notes/findings.md`](notes/findings.md)
 * [x] ODbLライセンス対応方針の決定(段階1・2分) — 案A(クエリのみ・
       再配布なし)を[`docs/decisions/0001-odbl-license-handling.md`](docs/decisions/0001-odbl-license-handling.md)
       で承認済み。段階3(他プロジェクトへの統合)の扱いは引き続き未決
