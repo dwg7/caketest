@@ -106,12 +106,15 @@ dwg7/caketest/
 * [x] Layercakeの内容確認、dwg7への価値の見立て
 * [x] プロジェクト立ち上げの決定(`dwg7/caketest`)
 * [x] `dwg7/caketest` リポジトリ作成
-* [x] Settlementsレイヤーの検証(段階1) — 北海道/ビエンチャン/ジュバの
-      3地域で検証済み、詳細は[`notes/findings.md`](notes/findings.md)
+* [x] Settlementsレイヤーの検証(段階1) — 北海道/ビエンチャン/ジュバ/
+      フリータウンの4地域で検証済み、詳細は[`notes/findings.md`](notes/findings.md)
 * [x] POIs/Highways/Boundariesの簡易評価(段階2) — ネパール保健施設
-      /道路通行可能性/ラオス行政境界で検証済み、詳細は
+      /道路通行可能性(北海道・ビエンチャン・ジュバ・フリータウン)
+      /ラオス・フリータウンの行政境界で検証済み、詳細は
       [`notes/findings.md`](notes/findings.md)
 * [x] ODbLライセンス対応方針の決定(段階1・2分) — 案A(クエリのみ・
       再配布なし)を[`docs/decisions/0001-odbl-license-handling.md`](docs/decisions/0001-odbl-license-handling.md)
       で承認済み。段階3(他プロジェクトへの統合)の扱いは引き続き未決
-* [ ] 実用可否の判断、既存プロジェクトへの統合提案(段階3)
+* [~] 実用可否の判断、既存プロジェクトへの統合提案(段階3) — 判断材料を
+      [`docs/decisions/0002-stage3-judgment-materials.md`](docs/decisions/0002-stage3-judgment-materials.md)
+      に整理済み。最終判断は未了(人の判断待ち)

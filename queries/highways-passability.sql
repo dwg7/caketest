@@ -1,6 +1,6 @@
 -- Highwaysレイヤー: 道路の通行可能性属性(surface/tracktype/access等)の
 -- カバレッジを地域ごとに比較する
--- 北海道・ビエンチャン・ジュバの3bboxで実行(下記は北海道の例)
+-- 北海道・ビエンチャン・ジュバ・フリータウンの4bboxで実行(下記は北海道の例)
 INSTALL spatial; LOAD spatial;
 INSTALL httpfs; LOAD httpfs;
 
@@ -15,3 +15,4 @@ FROM read_parquet('https://data.openstreetmap.us/layercake/highways.parquet')
 WHERE bbox.xmin BETWEEN 139.3 AND 148.9 AND bbox.ymin BETWEEN 41.3 AND 45.6; -- 北海道
 -- WHERE bbox.xmin BETWEEN 102.0 AND 103.2 AND bbox.ymin BETWEEN 17.6 AND 18.4; -- ビエンチャン
 -- WHERE bbox.xmin BETWEEN 31.4 AND 32.0 AND bbox.ymin BETWEEN 4.6 AND 5.1; -- ジュバ
+-- WHERE bbox.xmin BETWEEN -13.35 AND -12.95 AND bbox.ymin BETWEEN 8.25 AND 8.55; -- フリータウン
