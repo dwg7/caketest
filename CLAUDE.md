@@ -109,7 +109,7 @@ dwg7/caketest/
 * [x] Settlementsレイヤーの検証(段階1) — 北海道/ビエンチャン/ジュバの
       3地域で検証済み、詳細は[`notes/findings.md`](notes/findings.md)
 * [ ] POIs/Highways/Boundariesの簡易評価(段階2)
-* [~] ODbLライセンス対応方針の決定 — 調査フェーズの暫定方針を
-      [`docs/decisions/0001-odbl-license-handling.md`](docs/decisions/0001-odbl-license-handling.md)
-      に提案として記録済み。最終決定は未了(人の判断待ち)
+* [x] ODbLライセンス対応方針の決定(段階1・2分) — 案A(クエリのみ・
+      再配布なし)を[`docs/decisions/0001-odbl-license-handling.md`](docs/decisions/0001-odbl-license-handling.md)
+      で承認済み。段階3(他プロジェクトへの統合)の扱いは引き続き未決
 * [ ] 実用可否の判断、既存プロジェクトへの統合提案(段階3)
