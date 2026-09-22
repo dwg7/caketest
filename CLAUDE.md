@@ -152,7 +152,13 @@ dwg7/caketest/
       選び4レイヤーで検証済み。**「国」より「都市」がマッピング
       密度を左右する**という知見を得た、詳細は
       [`notes/findings.md`](notes/findings.md)の「段階5」節
-* [ ] ブラウザでの対話的プレゼンテーション構想の具体化(未着手、メモのみ)
+* [x] ブラウザでの対話的プレゼンテーション構想の検証 —
+      [`docs/decisions/0004-browser-presentation-layer.md`](docs/decisions/0004-browser-presentation-layer.md)
+      に記録。**重要な発見**: claude.ai Artifactでは外部への
+      fetch/XHRがCSPでブロックされるため実現不可、代わりに
+      リポジトリ内のスタンドアロンHTML([`web/index.html`](web/index.html))
+      として実装。DuckDB-WASM + httpfsでLayercakeへのライブクエリを
+      実機検証済み(CLIの結果と完全一致)
 
 ## 7. 方針転換(2026-09-22): 探索的アプローチへ
 

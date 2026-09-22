@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>caketest — Layercake Explorer</title>
+<style>
+  :root {
+    --bg: #faf7f2;
+    --surface: #ffffff;
+    --ink: #2a2420;
+    --ink-dim: #6b6259;
+    --accent: #b5622f;
+    --accent-dim: #e8c9b3;
+    --border: #e4dcd1;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1815;
+      --surface: #262019;
+      --ink: #f0e9e0;
+      --ink-dim: #a89d8f;
+      --accent: #e08a52;
+      --accent-dim: #4a3626;
+      --border: #3a322a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 48px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.55;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { margin-bottom: 28px; }
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  header p {
+    margin: 0;
+    color: var(--ink-dim);
+    font-size: 0.92rem;
+    max-width: 60ch;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--ink-dim);
+    margin-top: 10px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-dim); }
+  .badge[data-state="loading"] .dot { background: #d4a017; }
+  .badge[data-state="ready"] .dot { background: #4caf7d; }
+  .badge[data-state="error"] .dot { background: #c0392b; }
+
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  section h2 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-dim);
+    margin: 0 0 14px;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+  select, button {
+    font: inherit;
+    font-size: 0.92rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--ink);
+  }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+  }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button:not(:disabled):hover { filter: brightness(1.08); }
+
+  .sql-box {
+    margin-top: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .meta-row {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+    margin-top: 12px;
+  }
+  .meta-row strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin-top: 14px;
+  }
+  th, td {
+    text-align: left;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  th { color: var(--ink-dim); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .table-wrap { overflow-x: auto; }
+
+  .msg { font-size: 0.88rem; color: var(--ink-dim); }
+  .msg.err { color: #c0392b; }
+
+  footer {
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    margin-top: 32px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Layercake Explorer(プロトタイプ)</h1>
+    <p>
+      このページ自体がDuckDB-WASMを使い、あなたのブラウザから直接
+      Layercake(OpenStreetMap USのGeoParquet配布)へライブクエリを
+      投げます。サーバーもダウンロードも経由しません。
+    </p>
+    <span class="badge" id="status" data-state="loading"><span class="dot"></span><span id="status-text">DuckDB-WASMを初期化中…</span></span>
+  </header>
+
+  <section>
+    <h2>対象地域</h2>
+    <div class="controls">
+      <select id="region"></select>
+      <button id="run" disabled>Settlementsレイヤーをクエリ</button>
+    </div>
+    <div class="sql-box" id="sql-preview"></div>
+  </section>
+
+  <section>
+    <h2>結果</h2>
+    <div id="result"><p class="msg">上のボタンを押すと、その場でクエリが実行されます。</p></div>
+  </section>
+
+  <footer>
+    出典: Layercake (OpenStreetMap US) / © OpenStreetMap contributors, ODbL。
+    このページのコード自体は<a href="../LICENSE">CC0</a>。データはローカルに複製せず、
+    毎回オンラインで取得します。詳細は
+    <a href="https://github.com/UNopenGIS/7" target="_blank" rel="noopener">dwg7/caketest</a>の
+    <code>docs/decisions/0004-browser-presentation-layer.md</code>を参照。
+  </footer>
+</div>
+
+<script type="module">
+  const REGIONS = [
+    { label: "北海道", xmin: 139.3, xmax: 148.9, ymin: 41.3, ymax: 45.6 },
+    { label: "ビエンチャン周辺(ラオス)", xmin: 102.0, xmax: 103.2, ymin: 17.6, ymax: 18.4 },
+    { label: "ジュバ周辺(南スーダン)", xmin: 31.4, xmax: 32.0, ymin: 4.6, ymax: 5.1 },
+    { label: "フリータウン周辺(シエラレオネ)", xmin: -13.35, xmax: -12.95, ymin: 8.25, ymax: 8.55 },
+    { label: "スバ周辺(フィジー)", xmin: 178.30, xmax: 178.58, ymin: -18.28, ymax: -18.00 },
+    { label: "ラゴス(ナイジェリア)", xmin: 3.10, xmax: 3.60, ymin: 6.35, ymax: 6.70 },
+  ];
+
+  const statusEl = document.getElementById("status");
+  const statusText = document.getElementById("status-text");
+  const regionSelect = document.getElementById("region");
+  const runBtn = document.getElementById("run");
+  const sqlPreview = document.getElementById("sql-preview");
+  const resultEl = document.getElementById("result");
+
+  for (const r of REGIONS) {
+    const opt = document.createElement("option");
+    opt.textContent = r.label;
+    regionSelect.appendChild(opt);
+  }
+
+  function setStatus(state, text) {
+    statusEl.dataset.state = state;
+    statusText.textContent = text;
+  }
+
+  function buildSql(region) {
+    return `SELECT place, count(*) AS n\nFROM read_parquet('https://data.openstreetmap.us/layercake/settlements.parquet')\nWHERE bbox.xmin BETWEEN ${region.xmin} AND ${region.xmax}\n  AND bbox.ymin BETWEEN ${region.ymin} AND ${region.ymax}\nGROUP BY place\nORDER BY n DESC;`;
+  }
+
+  function renderSql() {
+    const region = REGIONS[regionSelect.selectedIndex];
+    sqlPreview.textContent = buildSql(region);
+  }
+  regionSelect.addEventListener("change", renderSql);
+  renderSql();
+
+  let conn = null;
+
+  async function initDuckDB() {
+    try {
+      const duckdb = await import("https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/+esm");
+      const bundles = duckdb.getJsDelivrBundles();
+      const bundle = await duckdb.selectBundle(bundles);
+      const workerUrl = URL.createObjectURL(
+        new Blob([`importScripts("${bundle.mainWorker}");`], { type: "text/javascript" })
+      );
+      const worker = new Worker(workerUrl);
+      const logger = new duckdb.ConsoleLogger();
+      const db = new duckdb.AsyncDuckDB(logger, worker);
+      await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+      URL.revokeObjectURL(workerUrl);
+
+      conn = await db.connect();
+      await conn.query(`INSTALL httpfs; LOAD httpfs;`);
+
+      setStatus("ready", "準備完了 — DuckDB-WASM + httpfs が起動しました");
+      runBtn.disabled = false;
+    } catch (err) {
+      console.error(err);
+      setStatus("error", "初期化失敗: " + err.message);
+      resultEl.innerHTML = `<p class="msg err">DuckDB-WASMの初期化に失敗しました: ${escapeHtml(err.message)}</p>`;
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  }
+
+  async function runQuery() {
+    if (!conn) return;
+    const region = REGIONS[regionSelect.selectedIndex];
+    const sql = buildSql(region);
+    runBtn.disabled = true;
+    resultEl.innerHTML = `<p class="msg">クエリ実行中(Layercakeへライブアクセス中)…</p>`;
+    const t0 = performance.now();
+    try {
+      const result = await conn.query(sql);
+      const elapsed = (performance.now() - t0).toFixed(0);
+      const rows = result.toArray().map((r) => r.toJSON());
+      renderTable(rows, elapsed, region);
+    } catch (err) {
+      console.error(err);
+      resultEl.innerHTML = `<p class="msg err">クエリ失敗: ${escapeHtml(err.message)}</p>`;
+    } finally {
+      runBtn.disabled = false;
+    }
+  }
+
+  function renderTable(rows, elapsedMs, region) {
+    if (rows.length === 0) {
+      resultEl.innerHTML = `<p class="msg">該当データがありませんでした。</p>`;
+      return;
+    }
+    const total = rows.reduce((sum, r) => sum + Number(r.n), 0);
+    const body = rows
+      .map((r) => `<tr><td>${escapeHtml(r.place ?? "(null)")}</td><td class="num">${Number(r.n).toLocaleString()}</td></tr>`)
+      .join("");
+    resultEl.innerHTML = `
+      <div class="meta-row">
+        <span>地域: <strong>${escapeHtml(region.label)}</strong></span>
+        <span>合計: <strong>${total.toLocaleString()}</strong>件</span>
+        <span>クエリ時間: <strong>${elapsedMs}</strong> ms(ブラウザから直接取得)</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>place</th><th class="num">件数</th></tr></thead>
+          <tbody>${body}</tbody>
+        </table>
+      </div>`;
+  }
+
+  runBtn.addEventListener("click", runQuery);
+  initDuckDB();
+</script>
+</body>
+</html>

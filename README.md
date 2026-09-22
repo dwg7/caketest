@@ -19,6 +19,18 @@ spatial拡張等でダウンロードせずに直接クエリできる規模感(
 * `queries/` — レイヤー・地域ごとの検証用SQL
 * `notes/findings.md` — 各レイヤーの評価結果、既存プロジェクトへの
   転用可能性の一覧
+* `web/` — ブラウザからLayercakeへ直接ライブクエリするプロトタイプ
+  ([`docs/decisions/0004-browser-presentation-layer.md`](docs/decisions/0004-browser-presentation-layer.md)参照)
+
+## ブラウザプロトタイプの動かし方
+
+```bash
+cd web && python3 -m http.server 8743
+```
+
+上記を実行し、ブラウザで <http://localhost:8743/index.html> を開く
+(`file://`で直接開くとESモジュール読み込みが失敗するため、必ず
+簡易サーバー経由で開くこと)。
 
 ## ライセンス
 
