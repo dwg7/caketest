@@ -1,17 +1,18 @@
 # caketest
 
-Early exploration of [Layercake](https://layercake.openstreetmap.us/) (OSM US's
-planet-wide GeoParquet layers) — can it serve as a ready-made settlement
-gazetteer for dwg7?
+[Layercake](https://layercake.openstreetmap.us/)(OpenStreetMap USが
+全世界のOSMデータをテーマ別に単一のGeoParquetファイルへ蒸留したもの)
+という技術を使って、各国・各地域のOSMデータの多様性、そこにある課題の
+多様性を理解する探索的調査プロジェクト。
 
-Layercakeは、OpenStreetMap USが全世界のOSMデータをテーマ別に単一の
-GeoParquetファイルへ蒸留したもの(Addresses、Boundaries、Buildings、
-Highways、Parks、POIs、Settlements、Waterwaysの8テーマ)。DuckDBの
-spatial拡張等でダウンロードせずに直接クエリできる規模感(多くのテーマが
-数百MiB程度)であることから、dwg7のデータ需要——特に集落名辞書の
-欠落という課題——に使えるかを検証する。
+当初は「dwg7の集落名辞書として実用に足るか」を判定する検証として
+始まったが、調査の過程で「地域のOSMマッピング密度がそのままデータ
+充実度に反映される」——特に**国より都市単位で大きく変動する**——
+ことが分かり、実用可否の判定から探索的な理解へと重心を移した。
+JICA課題別研修「国家測量事業計画・管理」の参加9カ国の首都+特徴的な
+都市を対象に検証を進めている。
 
-詳細な背景・進め方は [CLAUDE.md](CLAUDE.md) を参照。
+詳しい経緯・現状は [CLAUDE.md](CLAUDE.md) を参照。
 
 ## 構成
 
