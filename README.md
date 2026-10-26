@@ -25,6 +25,12 @@ JICA課題別研修「国家測量事業計画・管理」の参加9カ国の首
 
 ## ブラウザプロトタイプの動かし方
 
+公開版: <https://dwg7.unopengis.org/caketest/>
+(`main`の`web/`が変わるたびにGitHub Actionsで自動デプロイされる。
+`.github/workflows/pages.yml`)
+
+ローカルで動かす場合:
+
 ```bash
 cd web && python3 -m http.server 8743
 ```
